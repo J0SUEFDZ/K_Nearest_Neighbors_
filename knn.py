@@ -1,7 +1,20 @@
 #Import os para usar las funcionalidades de los path
 import os
-#import numpy para el manejo de array
 import numpy as np
+
+# CIFAR-10 pickles use an old NumPy dtype format; suppress deprecation from unpickling
+# Directorio con los archivos CIFAR-10 (data_batch_1..5, test_batch, batches.meta)
+# Descarga: https://www.cs.toronto.edu/~kriz/cifar.html (Python version)
+def _find_data_dir():
+    root = os.path.dirname(os.path.abspath(__file__))
+    for candidate in (
+        os.path.join(root, 'cifar-10-batches-py'),
+        os.path.join(root, 'cifar-10-python', 'cifar-10-batches-py'),
+    ):
+        if os.path.isfile(os.path.join(candidate, 'test_batch')):
+            return candidate
+    return os.path.join(root, 'cifar-10-batches-py')  # default for error message
+_BASE_DIR = _find_data_dir()
 
 #Funcion obtenida del CIFAR-10
 #File: Nombre del archivo a decifrar.
@@ -9,6 +22,12 @@ import numpy as np
 #Data: Una serie de 10000 arrays(imagenes) cada uno presenta una cantidad de 3072 colores.
 def unpickle(file):
     import pickle
+    if not os.path.isfile(file):
+        raise FileNotFoundError(
+            f"No se encontró el archivo de datos: {file}\n"
+            f"Descarga CIFAR-10 desde https://www.cs.toronto.edu/~kriz/cifar-10-python.tar.gz\n"
+            f"Descomprime el tar.gz y coloca la carpeta 'cifar-10-batches-py' en este proyecto."
+        )
     with open(file, 'rb') as fo:
         dict = pickle.load(fo, encoding='bytes')
     return dict
@@ -23,14 +42,14 @@ def unpickle(file):
 #msg si es b'labels' retorna la etiqueta de la imagen img
 #Retorna: Los colores o el nombre de la etiqueta, dependiendo del msg
 def getData(dict, img, msg):
-        diccionario = unpickle(os.getcwd()+'\\data_batch_'+str(dict))
+        diccionario = unpickle(os.path.join(_BASE_DIR, 'data_batch_'+str(dict)))
         return diccionario[msg][img]
     
 #Funcion similar a getData, pero obtiene los datos de prueba
 #-------Parametros-------
 #msg: Entre b'data' y b'labels' para el array de la imagen o el label
 def getTest(msg):
-    data = unpickle(os.getcwd()+'\\test_batch')
+    data = unpickle(os.path.join(_BASE_DIR, 'test_batch'))
     return data[msg]
 
 #Funcion obtener nombre de label
@@ -39,7 +58,7 @@ def getTest(msg):
 #num numero de la clase a buscar (del 0 al 9)
 #retorna:  el nombre de la clase ej:truck, frog,...,cat
 def getnomLbl(num):
-        diccionario = unpickle(os.getcwd()+'\\batches.meta')
+        diccionario = unpickle(os.path.join(_BASE_DIR, 'batches.meta'))
         return diccionario[b'label_names'][num]
 
 #Funcion que crea un archivo y muestra la imagen
@@ -74,7 +93,7 @@ class KNN():
 def getTrainingSet():
     data = []
     for batch in range(1,6):
-        dicc = unpickle(os.getcwd()+'\\data_batch_'+str(batch))
+        dicc = unpickle(os.path.join(_BASE_DIR, 'data_batch_'+str(batch)))
         k = KNN()
         k.entrenar(dicc[b'data'], dicc[b'labels'])
         data.append(k)
@@ -164,10 +183,13 @@ def getVecinos(img,tipo,k):
 #Realiza el proceso incial
 #-------Parametros-------    
 def Inicio(tipo=1,k=1):
+    print("Loading test data...")
     test = getTest(b'data')
     lbl = getTest(b'labels')
     hit=0
     cant = 5
+    names = {1: "Manhattan", 2: "Chebyshev", 3: "Levenshtein"}
+    print(f"Running KNN with {names.get(tipo, tipo)} on {cant} test images (this may take a while for Levenshtein)...")
     for i in (range(15,20)):
         getLbl = getVecinos(test[i],tipo,k)
         print("obtenido:" +getnomLbl(getLbl).decode() +" real: "+getnomLbl(lbl[i]).decode() )
@@ -178,6 +200,7 @@ def Inicio(tipo=1,k=1):
     print("res: ",res)
 
 
-Inicio(3,1)
+# 1=Manhattan (fast), 2=Chebyshev (fast), 3=Levenshtein (very slow – can take 30+ min)
+Inicio(1, 1)
 #levenshtein(getTest(b'data')[15],getTest(b'data')[15])
 
