@@ -1,0 +1,23 @@
+# Virtual environment (recreate with: python3 -m venv .venv && pip install -r requirements.txt)
+.venv/
+venv/
+env/
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+*.egg
+
+# LaTeX / build
+*.aux
+*.log
+*.out
+*.toc
+*.bbl
+*.blg
+*.synctex.gz
+
+# OS
+.DS_Store
+Thumbs.db
