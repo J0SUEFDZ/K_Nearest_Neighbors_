@@ -53,7 +53,7 @@ Python, NumPy. Optional: Pillow (PIL) for the image-display function.
 `main.tex` is the LaTeX source for the **project report** (in Spanish). It describes the KNN methodology, the three distance functions (Manhattan, Chebyshev, Levenshtein) with equations, the experiments run on CIFAR-10, and the conclusions. The PDF is built from this file together with `biblio.bib`.
 
 **View the report online (read-only, Spanish):**  
-[Reporte en Overleaf — K Nearest Neighbors Analysis](https://es.overleaf.com/read/hhwgptjtngbk#30f2bc)
+[Reporte en Overleaf — K Nearest Neighbors Analysis](https://j0suefdz.github.io/LaTex-Templates/k_nearest_neighbours.pdf)
 
 ## Source and reference
 
